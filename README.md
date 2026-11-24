@@ -1,6 +1,6 @@
 # Automated Healthcare Provider Valuation & Trading Comps Engine
 
-A Python-based corporate finance pipeline that ingests live market quotes and historical 10-K financial statements for **HCA Healthcare (`HCA`)** and its publicly traded hospital peer group (**`THC`**, **`UHS`**, **`CYH`**), normalizes accounting line items, runs an Unlevered Discounted Cash Flow (DCF) and Trading Comps valuation, and exports an institutional-grade, formula-driven 4-tab Excel model.
+A Python-based corporate finance pipeline that ingests live market quotes and historical 10-K financial statements for **HCA Healthcare (`HCA`)** and its publicly traded hospital and outpatient peer group (**`THC`**, **`UHS`**, **`ARDT`**, **`EHC`**, **`SGRY`**), normalizes accounting line items, runs an Unlevered Discounted Cash Flow (DCF) and Trading Comps valuation, and exports an institutional-grade, formula-driven 4-tab Excel model.
 
 ---
 
@@ -14,7 +14,7 @@ A Python-based corporate finance pipeline that ingests live market quotes and hi
   * Preserves missing balance-sheet inputs as `NaN` rather than defaulting to zero, and excludes negative P/E ratios from peer summary statistics.
 * **DCF, WACC & Sensitivity Engine (`src/valuation.py`):**
   * Computes WACC via CAPM using live Beta, market-value capital weights, and effective tax rates.
-  * Projects 5-year Unlevered Free Cash Flows and calculates Terminal Value under both the **Perpetuity Growth (Gordon Growth)** and **Peer Median EV/EBITDA Exit Multiple** methods.
+  * Projects 5-year Unlevered Free Cash Flows and calculates Terminal Value under both the **Perpetuity Growth (Gordon Growth)** method and an **Exit EV/EBITDA Multiple** anchored to HCA's `9.0x` historical quality multiple.
   * Recalculates DCF valuation bounds at WACC ± 50 bps for the Football Field summary.
 * **Dynamic Multi-Tab Excel Report (`src/excel_builder.py`):** Generates `output/HCA_Valuation_Model.xlsx` with live Excel formulas (`=NPV`, `=SUM`, `=MEDIAN`, `=PERCENTILE`), Wall Street color coding (blue inputs, black same-sheet formulas, green cross-sheet links), a **Bull / Base / Bear scenario dropdown (`INDEX/MATCH`)**, two 2-variable sensitivity matrices, and a floating-bar **Football Field** chart.
 
@@ -24,10 +24,10 @@ A Python-based corporate finance pipeline that ingests live market quotes and hi
 
 | Tab | Contents |
 | :--- | :--- |
-| **1. Executive Summary** | Valuation Football Field summary table (`Low`, `Base/Mid`, `High`, `Current Price`), floating horizontal range chart, and methodology notes. |
+| **1. Executive Summary** | Valuation Football Field summary table (`Low`, `Spread`, `Base/Mid`, `High`, `Current Price`), floating horizontal range chart, and methodology notes. |
 | **2. DCF Model** | CAPM WACC schedule, interactive **Bull / Base / Bear** scenario selector (`H5`), historical & 5-year projected UFCF schedule, and Enterprise-to-Equity bridge. |
 | **3. Sensitivity Analysis** | Dynamic Excel formula tables testing Implied Share Price across **WACC vs. Terminal Growth Rate** and **WACC vs. Exit EV/EBITDA Multiple**. |
-| **4. Trading Comps** | Live valuation multiples (`EV/Revenue`, `EV/EBITDA`, `Forward P/E`) across `HCA`, `THC`, `UHS`, and `CYH` with `25th Percentile`, `Median`, `Average`, and `75th Percentile` benchmarks. |
+| **4. Trading Comps** | Live valuation multiples (`EV/Revenue`, `EV/EBITDA`, `Forward P/E`) across `HCA`, `THC`, `UHS`, `ARDT`, `EHC`, and `SGRY` with `25th Percentile`, `Median`, `Average`, and `75th Percentile` benchmarks. |
 
 ---
 
@@ -99,8 +99,8 @@ pytest -v
 
 * **Minority Interest Alignment:** Acute-care hospital operators frequently operate outpatient surgery centers and hospitals through majority-owned joint ventures. Because consolidated EBITDA and UFCF reflect 100% of joint-venture operations, noncontrolling interests are added to Enterprise Value in Trading Comps and subtracted in the DCF Enterprise-to-Equity bridge.
 * **WACC Capital Weights:** Per standard corporate finance convention, WACC weights use market value of common equity and total debt, excluding book-value minority interest where standalone market values and betas are unobservable.
-* **Peer Multiple Dispersion:** `HCA` commands a valuation premium (~9.9x EV/EBITDA) relative to smaller or more leveraged hospital peers (`THC`, `UHS`, `CYH`, trading around 5.4x–8.1x EV/EBITDA). Consequently, peer-multiple-based methods (`Exit EV/EBITDA` and `Trading Comps`) imply lower standalone share prices than `HCA`'s intrinsic Perpetuity Growth DCF.
+* **Peer Set:** `HCA` benchmarked against acute-care hospital operators (`THC`, `UHS`, `ARDT`) and adjacent post-acute/outpatient facility leaders (`EHC`, `SGRY`), excluding distressed micro-cap outliers (`CYH`).
 
 ## Conclusion
 
-HCA appears roughly fairly valued on an intrinsic DCF basis (~$497/sh vs. $476/sh market price), meaning the stock's forward return depends heavily on whether HCA can sustain its ~20% EBITDA margins and defend its ~9.9x valuation premium over smaller, higher-leverage hospital peers.
+* Both Perpetuity Growth DCF (`~$496/sh`) and Exit Multiple DCF at HCA's `9.0x` quality multiple (`~$493/sh`) align tightly around HCA's current market price (`~$480/sh`), indicating the stock is fairly valued on baseline cash-flow expectations with upside driven by outpatient margin expansion and share repurchases.

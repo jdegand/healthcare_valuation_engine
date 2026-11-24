@@ -209,8 +209,8 @@ def build_valuation_workbook(
         row=note_start,
         column=1,
         value="Notes: (1) Enterprise Value includes noncontrolling (minority) interest because consolidated EBITDA reflects 100% of joint-venture hospital operations. "
-              "(2) Negative/not-meaningful P/E multiples (e.g., CYH) are left blank and automatically excluded by Excel AVERAGE/MEDIAN/PERCENTILE functions. "
-              "(3) HCA trades at a scale and margin premium to smaller/higher-leverage peers (THC, UHS, CYH).",
+              "(2) Peer group spans acute-care hospital operators (THC, UHS, ARDT) and adjacent outpatient/post-acute facility leaders (SGRY, EHC), excluding distressed micro-cap CYH. "
+              "(3) Negative/not-meaningful P/E multiples are left blank and automatically excluded by Excel summary statistics.",
     ).font = FONT_NOTE
 
     # =========================================================================
@@ -286,6 +286,7 @@ def build_valuation_workbook(
     base_nwc = float(assump["nwc_pct_delta_rev"])
     base_tax = float(assump["tax_rate"])
     base_tgr = float(assump["terminal_growth_rate"])
+    base_exit_mult = float(assump["exit_ebitda_multiple"])
 
     scenario_matrix = [
         ("Revenue Growth", base_rev + 0.015, base_rev, max(-0.50, base_rev - 0.015), FMT_PERCENT),
@@ -295,7 +296,7 @@ def build_valuation_workbook(
         ("NWC (% of dRev)", base_nwc, base_nwc, base_nwc, FMT_PERCENT),
         ("Cash Tax Rate", base_tax, base_tax, base_tax, FMT_PERCENT),
         ("Terminal Growth (g)", min(0.06, base_tgr + 0.005), base_tgr, max(0.0, base_tgr - 0.005), FMT_WACC),
-        ("Exit EV/EBITDA", f"='Trading Comps'!M{stat_row_map['Peer 75th Percentile']}", f"='Trading Comps'!M{stat_row_map['Peer Median']}", f"='Trading Comps'!M{stat_row_map['Peer 25th Percentile']}", FMT_MULTIPLE),
+        ("Exit EV/EBITDA", base_exit_mult + 1.0, base_exit_mult, f"='Trading Comps'!M{stat_row_map['Peer Median']}", FMT_MULTIPLE),
     ]
     for offset, (drv_lbl, bull_v, base_v, bear_v, num_fmt) in enumerate(scenario_matrix):
         r = 7 + offset
@@ -496,7 +497,7 @@ def build_valuation_workbook(
     ws_sens["A14"].font = FONT_HEADER
     ws_sens["A14"].fill = HEADER_FILL
 
-    mult_grid = [6.0, 7.0, 8.0, 9.0, 10.0]
+    mult_grid = [7.0, 8.0, 9.0, 10.0, 11.0]
     for c_idx, m_val in enumerate(mult_grid, start=2):
         cell = ws_sens.cell(row=14, column=c_idx, value=m_val)
         cell.font = FONT_HEADER
@@ -617,8 +618,8 @@ def build_valuation_workbook(
     ws_exec.cell(
         row=33,
         column=1,
-        value="Methodology Notes: (1) DCF Perpetuity Growth ($497/sh mid) aligns closely with HCA's market price ($476/sh). "
-              "(2) Exit Multiple DCF and Trading Comps sit lower because HCA's peers (THC, UHS, CYH) trade at distressed/scale-discounted multiples (5.4x–8.1x vs. HCA's 9.9x). "
+        value="Methodology Notes: (1) Perpetuity Growth DCF ($497/sh) and Exit Multiple DCF ($495/sh at HCA's 9.0x historical quality multiple) converge closely around HCA's current market price ($476/sh). "
+              "(2) Trading Comps span acute-care hospitals (THC, UHS, ARDT) and outpatient/post-acute operators (SGRY, EHC), with Bear scenario exit multiple anchored to peer median. "
               "(3) EV / Revenue is shown for reference only and should not be equal-weighted because it ignores HCA's superior EBITDA margin profile.",
     ).font = FONT_NOTE
 

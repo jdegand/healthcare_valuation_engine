@@ -304,6 +304,7 @@ def derive_dcf_assumptions(
         peers_only.get("ev_to_ebitda", pd.Series(dtype=float)),
         "peer EV/EBITDA",
     )
+    anchor_exit_mult = float(DCF_DEFAULTS.get("default_exit_multiple", peer_median_ebitda))
 
     tax_rates = (
         pd.to_numeric(hist_df["tax_rate"], errors="coerce")
@@ -330,7 +331,7 @@ def derive_dcf_assumptions(
         "terminal_growth_rate": _finite_float(
             DCF_DEFAULTS["terminal_growth_rate"], "terminal_growth_rate"
         ),
-        "exit_ebitda_multiple": peer_median_ebitda,
+        "exit_ebitda_multiple": anchor_exit_mult,
     }
     return _validate_assumptions(raw_assumptions)
 
