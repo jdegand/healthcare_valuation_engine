@@ -31,6 +31,28 @@ A Python-based corporate finance pipeline that ingests live market quotes and hi
 
 ---
 
+## Workbook Preview
+
+![Workbook tab 1 - Executive Summary](screenshots/executive-summary.png)
+
+---
+
+![Workbook tab 2 - DCF Model Base Case](screenshots/dcf-model-base.png)
+
+---
+
+![Workbook tab 2 - DCF Model Bull Case](screenshots/dcf-model-bull-case.png)
+
+---
+
+![Workbook tab 3 - Sensitivity Analysis](screenshots/sensitivity-analysis.png)
+
+---
+
+![Workbook tab 4 - Trading Comps](screenshots/trading-comps.png)
+
+---
+
 ## Repository Structure
 
 ```text
